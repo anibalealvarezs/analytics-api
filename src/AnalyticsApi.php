@@ -67,6 +67,76 @@ class AnalyticsApi extends ApiKeyClient
     }
 
     /**
+     * Send a time-series payload for Autocorrelation
+     * 
+     * @param array $payload
+     * @return array
+     */
+    public function calculateAutocorrelation(array $payload): array
+    {
+        $response = $this->post('api/v1/stats/autocorrelation', [
+            'json' => $payload
+        ]);
+        return json_decode($response->getBody()->getContents(), true) ?? [];
+    }
+
+    /**
+     * Send a time-series payload for Log-Log Elasticity Regression
+     * 
+     * @param array $payload
+     * @return array
+     */
+    public function calculateElasticity(array $payload): array
+    {
+        $response = $this->post('api/v1/stats/elasticity', [
+            'json' => $payload
+        ]);
+        return json_decode($response->getBody()->getContents(), true) ?? [];
+    }
+
+    /**
+     * Send a time-series payload for MACD
+     * 
+     * @param array $payload
+     * @return array
+     */
+    public function calculateMacd(array $payload): array
+    {
+        $response = $this->post('api/v1/stats/macd', [
+            'json' => $payload
+        ]);
+        return json_decode($response->getBody()->getContents(), true) ?? [];
+    }
+
+    /**
+     * Send a time-series payload for Rolling Z-Score Anomaly Detection
+     * 
+     * @param array $payload
+     * @return array
+     */
+    public function calculateAnomaly(array $payload): array
+    {
+        $response = $this->post('api/v1/stats/anomaly', [
+            'json' => $payload
+        ]);
+        return json_decode($response->getBody()->getContents(), true) ?? [];
+    }
+
+    /**
+     * Send a time-series payload for Granger Causality
+     * 
+     * @param array $payload
+     * @return array
+     */
+    public function calculateGranger(array $payload): array
+    {
+        $response = $this->post('api/v1/stats/granger', [
+            'json' => $payload
+        ]);
+        return json_decode($response->getBody()->getContents(), true) ?? [];
+    }
+
+    /**
      * Generic POST method mimicking Guzzle's signature
      * 
      * @param string $endpoint
