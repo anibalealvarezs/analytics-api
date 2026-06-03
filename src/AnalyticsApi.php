@@ -2,10 +2,32 @@
 
 namespace Anibalealvarezs\AnalyticsApi;
 
-use Anibalealvarezs\ApiClientSkeleton\ApiClient;
+use Anibalealvarezs\ApiSkeleton\Clients\ApiKeyClient;
+use Anibalealvarezs\ApiSkeleton\Enums\DelayUnit;
+use Psr\Http\Message\ResponseInterface;
 
-class AnalyticsApi extends ApiClient
+class AnalyticsApi extends ApiKeyClient
 {
+    public function __construct(string $baseUrl = 'http://localhost', string $apiKey = 'dev_secret_key')
+    {
+        parent::__construct(
+            baseUrl: $baseUrl,
+            apiKey: $apiKey,
+            authSettings: [
+                'location' => 'header',
+                'name' => 'X-Admin-API-Key',
+            ],
+            defaultHeaders: [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ],
+            delayHeader: null,
+            delayUnit: DelayUnit::second,
+            guzzleClient: null,
+            debugMode: false
+        );
+    }
+
     /**
      * Set the Base URL for the Centralized Python Analytics Engine
      * 
@@ -13,7 +35,7 @@ class AnalyticsApi extends ApiClient
      */
     public function setHost(string $host): void
     {
-        $this->host = $host;
+        $this->setBaseUrl(rtrim($host, '/') . '/');
     }
 
     /**
@@ -24,9 +46,10 @@ class AnalyticsApi extends ApiClient
      */
     public function calculateCorrelation(array $payload): array
     {
-        return $this->post('/api/v1/stats/correlation', [
+        $response = $this->post('api/v1/stats/correlation', [
             'json' => $payload
         ]);
+        return json_decode($response->getBody()->getContents(), true) ?? [];
     }
 
     /**
@@ -37,8 +60,30 @@ class AnalyticsApi extends ApiClient
      */
     public function calculateRegression(array $payload): array
     {
-        return $this->post('/api/v1/stats/regression', [
+        $response = $this->post('api/v1/stats/regression', [
             'json' => $payload
         ]);
+        return json_decode($response->getBody()->getContents(), true) ?? [];
+    }
+
+    /**
+     * Generic POST method mimicking Guzzle's signature
+     * 
+     * @param string $endpoint
+     * @param array $options
+     * @return ResponseInterface
+     */
+    public function post(string $endpoint, array $options = []): ResponseInterface
+    {
+        $headers = $options['headers'] ?? [];
+        $body = isset($options['json']) ? json_encode($options['json']) : ($options['body'] ?? '');
+        
+        return $this->performRequest(
+            method: 'POST',
+            endpoint: ltrim($endpoint, '/'),
+            query: $options['query'] ?? [],
+            body: $body,
+            headers: $headers
+        );
     }
 }
